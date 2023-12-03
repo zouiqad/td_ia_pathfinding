@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public GameObject player;
 
     private PlayerController playerController;
-    private Tile[,] grid;
+    private Tile[][] grid;
 
     private Tile current_tile;
     private Tile goal_tile;
@@ -32,21 +32,25 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit raycastHit))
+            int layerMask = 1 << LayerMask.NameToLayer("Tile"); // Create a layer mask for the "tile" layer
+
+            if (Physics.Raycast(ray, out RaycastHit raycastHit, Mathf.Infinity, layerMask)) // Use the layer mask in the raycast
             {
                 Debug.DrawLine(ray.origin, raycastHit.point, Color.red, 2.0f); // Line will last for 2 seconds
-                //pathfinding.ResetAllTiles();
+
                 // Using the exact hit point for precision
                 Vector3Int hitPosition = Vector3Int.FloorToInt(raycastHit.point);
 
                 goal_tile = raycastHit.transform.gameObject.GetComponent<Tile>();
-                goal_tile._Color = Color.green;
-                print("Hit " + raycastHit.transform.name + " at " + raycastHit.point);
-                Stack<Tile> path = pathfinding.Djikistra(current_tile, goal_tile);
-                playerController.SetPath(path);
-                current_tile = goal_tile;
-                TileMap.GetComponent<TileMap>().ResetAllTiles();
 
+                if(goal_tile._TileType == Tile.TileType.Ground)
+                {
+                    print("Hit " + raycastHit.transform.name + " at " + raycastHit.point);
+                    Stack<Tile> path = pathfinding.Djikistra(current_tile, goal_tile);
+                    playerController.SetPath(path);
+                    current_tile = goal_tile;
+                    TileMap.GetComponent<TileMap>().ResetAllTiles();
+                }
             }
         }
 
@@ -79,8 +83,8 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        player.transform.position = new Vector3(grid[0, 0].transform.position.x, 0.65f, grid[0, 0].transform.position.z);
-        current_tile = grid[0, 0];
+        player.transform.position = new Vector3(grid[0][0].transform.position.x, 0.65f, grid[0][0].transform.position.z);
+        current_tile = grid[0][0];
 
     }
 

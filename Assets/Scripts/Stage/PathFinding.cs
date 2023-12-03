@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.PlasticSCM.Editor.WebApi;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Pathfinding : MonoBehaviour
@@ -32,7 +28,7 @@ public class Pathfinding : MonoBehaviour
 
             foreach (Tile neighbor in current_tile.neighbors)
             {
-                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Wall)
+                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Tree)
                 {
 
                     if (neighbor.Cost > neighbor.CostToReach + current_tile.Cost)
@@ -83,7 +79,7 @@ public class Pathfinding : MonoBehaviour
 
             foreach (Tile neighbor in current_tile.neighbors)
             {
-                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Wall)
+                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Tree)
                 {
                     float gScore = neighbor.CostToReach + current_tile.Cost;
                     if (neighbor.Cost > gScore)

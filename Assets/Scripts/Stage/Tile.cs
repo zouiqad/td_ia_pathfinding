@@ -8,13 +8,14 @@ public class Tile : MonoBehaviour
 {
     public List<Tile> neighbors;
 
-    [HideInInspector] public Tile predecessor = null;
+    [SerializeField] GameObject _treeGO;
 
+    [HideInInspector] public Tile predecessor = null;
 
     public enum TileType
     {
         Ground,
-        Wall
+        Tree
     }
 
     [SerializeField]
@@ -49,6 +50,12 @@ public class Tile : MonoBehaviour
             _tileType = value;
             switch (_tileType)
             {
+                case TileType.Ground:
+                    _treeGO.SetActive(false);
+                    break;
+                case TileType.Tree:
+                    _treeGO.SetActive(true);
+                    break;
                 // Here add switch case to display models or not EX: turretModel.SetActive(true)
                 default:
                     break;

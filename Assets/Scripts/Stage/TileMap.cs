@@ -4,65 +4,103 @@ using UnityEngine;
 
 public class TileMap : MonoBehaviour
 {
-    public Tile[,] grid;
+    public Tile[][] grid;
 
     [SerializeField] private GameObject _tilePrefab;
-    [SerializeField] private int sizeX = 10;
-    [SerializeField] private int sizeY = 10;
+    [SerializeField] private int sizeX = 13;
     private Dictionary<Tile, List<Tile>> neighborDictionary;
 
-    float strideZ = Mathf.Cos(Mathf.PI / 6);
+
 
     private void Start()
     {
-        grid = new Tile[sizeX, sizeY];
-    
-        // Generer la map (gameobjects)
-        for (int y = 0; y < sizeY; y++)
+        grid = new Tile[sizeX][];
+
+        int sizeY = (sizeX + 1) / 2;
+        bool isIncreasing = true; // Flag to track whether sizeY is increasing or decreasing
+        // Initialize each sub-array
+        for (int i = 0; i < sizeX; i++)
         {
-            float offSetX = (y % 2 == 0) ? 0 : 0.5f;
-            for (int x = 0; x < sizeX; x++)
+            grid[i] = new Tile[sizeY];
+
+            // Determine the step direction based on whether sizeY has reached sizeX
+            if (sizeY >= sizeX && isIncreasing)
             {
-                Tile tile = Instantiate(_tilePrefab, new Vector3(x + offSetX, 0, y * strideZ), Quaternion.Euler(0.0f, 90.0f, 0.0f)).GetComponent<Tile>();
-                grid[x, y] = tile;
+                isIncreasing = false; // Switch to decreasing once sizeY reaches sizeX
+            }
+
+            int sizeYDirection = isIncreasing ? 1 : -1;
+            sizeY += sizeYDirection;
+        }
+
+
+        float strideZ = Mathf.Cos(Mathf.PI / 6);
+        float offSetX = 0.0f;
+        isIncreasing = true;
+        // Generate the map (gameobjects)
+        for (int x = 0; x < sizeX; x++)
+        {
+            
+            sizeY = grid[x].Length;
+            for (int y = 0; y < sizeY; y++)
+            {
+                int type = 0;
+
+                Tile tile = Instantiate(_tilePrefab, new Vector3(y + offSetX, 0, x * strideZ), Quaternion.Euler(0.0f, 90.0f, 0.0f)).GetComponent<Tile>();
+                grid[x][y] = tile;
                 tile.gameObject.transform.parent = transform;
-                grid[x, y].Init(x, y);
+                if (x == sizeX / 2 && y == sizeX / 2) type = 1;
+                grid[x][y].Init(x, y, type);
             }
-        }
 
-
-        // Construire le graphe
-        neighborDictionary = new Dictionary<Tile, List<Tile>>();
-
-        for (int y = 0; y < sizeY; y++)
-        {
-            for (int x = 0; x < sizeX; x++)
+            // Determine the step direction based on whether sizeY has reached sizeX
+            if (sizeY >= sizeX && isIncreasing)
             {
-                List<Tile> neighbors = new List<Tile>();
-
-                if (y < sizeY - 1)
-                    neighbors.Add(grid[x, y + 1]);
-                if (x < sizeX - 1)
-                    neighbors.Add(grid[x + 1, y]);
-                if (y > 0)
-                    neighbors.Add(grid[x, y - 1]);
-                if (x > 0)
-                    neighbors.Add(grid[x - 1, y]);
-                if (x < sizeX - 1 && y < sizeY - 1)
-                    neighbors.Add(grid[x + 1, y + 1]);
-                if (x > 0 && y < sizeY - 1)
-                    neighbors.Add(grid[x - 1, y + 1]);
-
-                neighborDictionary.Add(grid[x, y], neighbors);
-                grid[x, y].neighbors = neighbors;
+                isIncreasing = false; // Switch to decreasing once sizeY reaches sizeX
             }
+
+            int sizeYDirection = isIncreasing ? -1 : 1;
+            offSetX += 0.5f * sizeYDirection;
         }
 
-        
-
-
+        BuildGraph();
     }
 
+    // Build the graph
+    private void BuildGraph()
+    {
+
+        neighborDictionary = new Dictionary<Tile, List<Tile>>();
+
+        for (int x = 0; x < sizeX; x++)
+        {
+            int sizeY = grid[x].Length;
+
+            Tile[] upperRow = x < sizeX - 1 ? grid[x + 1] : null;
+            Tile[] lowerRow = x > 0 ? grid[x - 1] : null;
+
+            for (int y = 0; y < sizeY; y++)
+            {
+                List<Tile> neighbors = new List<Tile>();
+                // TO DO FIX NEIGHBORS IMPLEMENT DIRECTION
+                if (y < sizeY - 1)
+                    neighbors.Add(grid[x][y + 1]);
+                if (y > 0)
+                    neighbors.Add(grid[x][y - 1]);
+                if (upperRow != null && y < upperRow.Length)
+                    neighbors.Add(upperRow[y]);
+                if (upperRow != null && y < upperRow.Length - 1)
+                    neighbors.Add(upperRow[y + 1]);
+                if (lowerRow != null && y < lowerRow.Length)
+                    neighbors.Add(lowerRow[y]);
+                if (lowerRow != null && y < lowerRow.Length - 1)
+                    neighbors.Add(lowerRow[y + 1]);
+
+                neighborDictionary.Add(grid[x][y], neighbors);
+                grid[x][y].neighbors = neighbors;
+            }
+        }
+    }
     public List<Tile> Neighbors(Tile tile)
     {
         return neighborDictionary[tile];
@@ -70,15 +108,17 @@ public class TileMap : MonoBehaviour
 
     public void ResetAllTiles()
     {
-        if(grid != null)
+        if (grid != null)
         {
-            foreach (Tile t in grid)
+            foreach (Tile[] row in grid)
             {
-                t.predecessor = null;
-                t.Cost = Mathf.Infinity;
-                t._Color = Color.white;
+                foreach (Tile t in row)
+                {
+                    t.predecessor = null;
+                    t.Cost = Mathf.Infinity;
+                    t._Color = Color.white;
+                }
             }
         }
-
     }
 }
