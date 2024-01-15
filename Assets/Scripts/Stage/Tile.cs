@@ -1,37 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Tile : MonoBehaviour
 {
+    [HideInInspector]
+    public Tile predecessor = null;
     public List<Tile> neighbors;
 
-    [SerializeField] GameObject _treeGO;
-
-    [HideInInspector] public Tile predecessor = null;
+    [SerializeField] private GameObject _GroundGO;
+    [SerializeField] private GameObject _TreeGO;
+    [SerializeField] private GameObject _HillGO;
 
     public enum TileType
     {
         Ground,
-        Tree
+        Tree,
+        Hill,
+        Void
     }
 
-    [SerializeField]
-    private TileType _tileType;
+    [HideInInspector]
+    public TileType _tileType;
 
+    [SerializeField]
+    private float _cost = 1.0f;
 
     private Renderer _renderer;
     private int _x;
     private int _y;
 
-    private float _cost = Mathf.Infinity;
-    public Color _Color { get => _renderer.material.color; set => _renderer.material.color = value; }
+    private float _costToReach = Mathf.Infinity;
+    private Color _Color { get => _renderer.material.color; set => _renderer.material.color = value; }
 
     public void Init(int x, int y, int type = (int)TileType.Ground)
     {
-        _renderer = GetComponent<Renderer>();
         neighbors = new List<Tile>();
 
         _x = x;
@@ -40,52 +46,84 @@ public class Tile : MonoBehaviour
         name = "Tile_" + x + "_" + y;
     }
 
-    
-    [SerializeField]
+
     public TileType _TileType
     {
         get => _tileType;
+
         set
         {
             _tileType = value;
+
             switch (_tileType)
             {
                 case TileType.Ground:
-                    _treeGO.SetActive(false);
+                    _renderer = _GroundGO.GetComponent<Renderer>();
+
+                    _GroundGO.SetActive(true);
+                    _TreeGO.SetActive(false);
+                    _HillGO.SetActive(false);
+
+                    Cost = 1.0f;
                     break;
                 case TileType.Tree:
-                    _treeGO.SetActive(true);
+                    _renderer = _TreeGO.GetComponent<Renderer>();
+
+                    _GroundGO.SetActive(true);
+                    _TreeGO.SetActive(true);
+                    _HillGO.SetActive(false);
+
+                    Cost = 3.0f;
                     break;
-                // Here add switch case to display models or not EX: turretModel.SetActive(true)
+                case TileType.Hill:
+                    _renderer = _HillGO.GetComponent<Renderer>();
+
+                    _GroundGO.SetActive(true);
+                    _TreeGO.SetActive(false);
+                    _HillGO.SetActive(true);
+
+                    Cost = 5.0f;
+                    break;
+
+                case TileType.Void:
+                    _renderer = null;
+
+                    _GroundGO.SetActive(false);
+                    _TreeGO.SetActive(false);
+                    _HillGO.SetActive(false);
+
+                    Cost = Mathf.Infinity;
+                    break;
                 default:
                     break;
             }
         }
+            
+    }
+
+
+    public void ColorTile(Color color)
+    {
+
+    }
+
+
+    public float Cost
+    {
+        get => _cost;
+        set => _cost = value;
     }
 
     public float CostToReach
     {
         get
         {
-            switch (_tileType)
-            {
-                default:
-                    return 1.0f;
-            }
-        }
-
-    }
-
-    public float Cost
-    {
-        get
-        {
-            return _cost == Mathf.Infinity ? Mathf.Infinity : _cost;
+            return _costToReach == Mathf.Infinity ? Mathf.Infinity : _costToReach;
         }
 
         set
         {
-            _cost = value;
+            _costToReach = value;
         }
     }
 

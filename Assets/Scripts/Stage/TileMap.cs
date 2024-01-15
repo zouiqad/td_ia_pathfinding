@@ -46,7 +46,7 @@ public class TileMap : MonoBehaviour
             {
                 int type = 0;
 
-                Tile tile = Instantiate(_tilePrefab, new Vector3(y + offSetX, 0, x * strideZ), Quaternion.Euler(0.0f, 90.0f, 0.0f)).GetComponent<Tile>();
+                Tile tile = Instantiate(_tilePrefab, new Vector3(y + offSetX, 0, x * strideZ), Quaternion.identity).GetComponent<Tile>();
                 grid[x][y] = tile;
                 tile.gameObject.transform.parent = transform;
                 if (x == sizeX / 2 && y == sizeX / 2) type = 1;
@@ -93,8 +93,8 @@ public class TileMap : MonoBehaviour
                     neighbors.Add(upperRow[y + 1]);
                 if (lowerRow != null && y < lowerRow.Length)
                     neighbors.Add(lowerRow[y]);
-                if (lowerRow != null && y < lowerRow.Length - 1)
-                    neighbors.Add(lowerRow[y + 1]);
+                if (lowerRow != null && y < 0)
+                    neighbors.Add(lowerRow[y - 1]);
 
                 neighborDictionary.Add(grid[x][y], neighbors);
                 grid[x][y].neighbors = neighbors;
@@ -115,8 +115,8 @@ public class TileMap : MonoBehaviour
                 foreach (Tile t in row)
                 {
                     t.predecessor = null;
-                    t.Cost = Mathf.Infinity;
-                    t._Color = Color.white;
+                    t.CostToReach = Mathf.Infinity;
+                    t.ColorTile(Color.white);
                 }
             }
         }

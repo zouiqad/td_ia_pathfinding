@@ -211,8 +211,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 394b18437ea6c9b4bb3fd430fa404263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tilePrefab: {fileID: 4750099500874551189, guid: 3a236fc5b0b43604fa301d221b04b8a1, type: 3}
-  sizeX: 13
+  _tilePrefab: {fileID: 8841005195210787564, guid: 0d94ac27c349f404a9dc1152855078f1, type: 3}
+  sizeX: 39
 --- !u!4 &343947025
 Transform:
   m_ObjectHideFlags: 0

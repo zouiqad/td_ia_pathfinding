@@ -22,9 +22,15 @@ public class GameManager : MonoBehaviour
         grid = TileMap.GetComponent<TileMap>().grid;
         playerController = player.GetComponent<PlayerController>();
         SpawnPlayer();
+
+        playerController.onCurrentTileUpdate += HandlePositionUpdate;
         
     }
 
+    private void HandlePositionUpdate(Tile tile)
+    {
+        current_tile = tile;
+    }
 
     // Update is called once per frame
     void Update()
@@ -41,15 +47,13 @@ public class GameManager : MonoBehaviour
                 // Using the exact hit point for precision
                 Vector3Int hitPosition = Vector3Int.FloorToInt(raycastHit.point);
 
-                goal_tile = raycastHit.transform.gameObject.GetComponent<Tile>();
+                goal_tile = raycastHit.transform.gameObject.GetComponentInParent<Tile>();
 
-                if(goal_tile._TileType == Tile.TileType.Ground)
+                if(goal_tile._TileType != Tile.TileType.Void)
                 {
-                    print("Hit " + raycastHit.transform.name + " at " + raycastHit.point);
+                    TileMap.GetComponent<TileMap>().ResetAllTiles();
                     Stack<Tile> path = pathfinding.Djikistra(current_tile, goal_tile);
                     playerController.SetPath(path);
-                    current_tile = goal_tile;
-                    TileMap.GetComponent<TileMap>().ResetAllTiles();
                 }
             }
         }

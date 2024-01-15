@@ -14,12 +14,12 @@ public class Pathfinding : MonoBehaviour
         open_list.Add(depart_tile);
 
         Tile current_tile = depart_tile;
-        current_tile.Cost = 0;
-        depart_tile._Color = Color.blue;
+        current_tile.CostToReach = 0;
+        depart_tile.ColorTile(Color.blue);
 
         while (open_list.Count > 0)
         {
-            open_list.Sort((x, y) => x.Cost.CompareTo(y.Cost)); // Ordonner la liste pour toujours avoir l'element avec le plus bas cout en premier
+            open_list.Sort((x, y) => x.CostToReach.CompareTo(y.CostToReach)); // Ordonner la liste pour toujours avoir l'element avec le plus bas cout en premier
 
             current_tile = open_list[0]; // Pop first element from open list
 
@@ -28,13 +28,12 @@ public class Pathfinding : MonoBehaviour
 
             foreach (Tile neighbor in current_tile.neighbors)
             {
-                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Tree)
+                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Void)
                 {
-
-                    if (neighbor.Cost > neighbor.CostToReach + current_tile.Cost)
+                    float newCost = neighbor.Cost + current_tile.CostToReach;
+                    if (neighbor.CostToReach > newCost)
                     {
-                        neighbor.Cost = neighbor.CostToReach + current_tile.Cost;
-                        neighbor._Color = Color.yellow;
+                        neighbor.CostToReach = newCost;
                         neighbor.predecessor = current_tile;
                     }
 
@@ -51,10 +50,11 @@ public class Pathfinding : MonoBehaviour
         while (current_tile.predecessor != null)
         {
             path.Push(current_tile);
+            current_tile.ColorTile(Color.black);
             current_tile = current_tile.predecessor;
         }
 
-
+        goal_tile.ColorTile(Color.red);
         return path;
     }
 
@@ -79,13 +79,13 @@ public class Pathfinding : MonoBehaviour
 
             foreach (Tile neighbor in current_tile.neighbors)
             {
-                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Tree)
+                if (!closed_list.Contains(neighbor) && neighbor._TileType != Tile.TileType.Void)
                 {
                     float gScore = neighbor.CostToReach + current_tile.Cost;
                     if (neighbor.Cost > gScore)
                     {
                         neighbor.Cost = gScore + ManhattanDistance(neighbor, goal_tile);
-                        neighbor._Color = Color.magenta;
+                        //neighbor._Color = Color.magenta;
                         neighbor.predecessor = current_tile;
                     }
 
@@ -97,12 +97,12 @@ public class Pathfinding : MonoBehaviour
             closed_list.Add(current_tile);
         }
 
-        goal_tile._Color = Color.green;
+        goal_tile.ColorTile(Color.green);
         Tile current = goal_tile.predecessor;
 
         while (current.predecessor != null)
         {
-            current._Color = Color.grey;
+            current.ColorTile(Color.grey);
             current = current.predecessor;
         }
 
