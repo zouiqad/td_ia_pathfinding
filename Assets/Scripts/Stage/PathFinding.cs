@@ -37,6 +37,7 @@ public class Pathfinding : MonoBehaviour
                         neighbor.predecessor = current_tile;
                     }
 
+
                     if (!open_list.Contains(neighbor)) open_list.Add(neighbor);
                 }
             }

@@ -49,7 +49,7 @@ public class TileMap : MonoBehaviour
                 Tile tile = Instantiate(_tilePrefab, new Vector3(y + offSetX, 0, x * strideZ), Quaternion.identity).GetComponent<Tile>();
                 grid[x][y] = tile;
                 tile.gameObject.transform.parent = transform;
-                if (x == sizeX / 2 && y == sizeX / 2) type = 1;
+
                 grid[x][y].Init(x, y, type);
             }
 
@@ -93,7 +93,7 @@ public class TileMap : MonoBehaviour
                     neighbors.Add(upperRow[y + 1]);
                 if (lowerRow != null && y < lowerRow.Length)
                     neighbors.Add(lowerRow[y]);
-                if (lowerRow != null && y < 0)
+                if (lowerRow != null && y > 0)
                     neighbors.Add(lowerRow[y - 1]);
 
                 neighborDictionary.Add(grid[x][y], neighbors);

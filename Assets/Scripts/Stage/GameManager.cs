@@ -20,11 +20,11 @@ public class GameManager : MonoBehaviour
     {
         pathfinding = gameObject.GetComponent<Pathfinding>();
         grid = TileMap.GetComponent<TileMap>().grid;
+
         playerController = player.GetComponent<PlayerController>();
         SpawnPlayer();
 
         playerController.onCurrentTileUpdate += HandlePositionUpdate;
-        
     }
 
     private void HandlePositionUpdate(Tile tile)
@@ -87,9 +87,8 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        player.transform.position = new Vector3(grid[0][0].transform.position.x, 0.65f, grid[0][0].transform.position.z);
-        current_tile = grid[0][0];
-
+        current_tile = GameObject.Find("Tile_0_0").GetComponent<Tile>();
+        player.transform.position = new Vector3(current_tile.transform.position.x, 0.2f, current_tile.transform.position.z);
     }
 
 /*    private void SpawnPlayer()

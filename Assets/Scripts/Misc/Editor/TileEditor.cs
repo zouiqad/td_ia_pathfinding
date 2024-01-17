@@ -18,15 +18,17 @@ public class TileEditor : Editor
 
         serializedObject.Update();
 
-        Tile tile = (Tile)target;
-
+        var allSelectedScripts = targets;
 
         EditorGUI.BeginChangeCheck();
+
         EditorGUILayout.PropertyField(SerializedTileTypeProperty);
+
         if (EditorGUI.EndChangeCheck())
         {
             // Call the setter of your property here
-            tile._TileType = (TileType)SerializedTileTypeProperty.enumValueIndex;
+            foreach (var script in allSelectedScripts)
+                ((Tile)script)._TileType = (TileType)SerializedTileTypeProperty.enumValueIndex;
 
         }
 

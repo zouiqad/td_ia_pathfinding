@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public Animator animator;
+
     public delegate void CurrentTileUpdate(Tile tile);
     public event CurrentTileUpdate onCurrentTileUpdate;
 
@@ -42,6 +44,11 @@ public class PlayerController : MonoBehaviour
             float journeyTime = journeyLength / movementSpeed;
             float lerpVal = 0;
 
+            if (animator != null)
+            {
+                animator.SetBool("IsRunning", true); // Trigger run animation
+            }
+
             while (lerpVal < 1)
             {
                 lerpVal += Time.deltaTime / journeyTime;
@@ -49,6 +56,13 @@ public class PlayerController : MonoBehaviour
                 onCurrentTileUpdate?.Invoke(currentTile);
                 yield return null;
             }
+
+            if (animator != null)
+            {
+                animator.SetBool("IsRunning", false); // Trigger idle animation
+            }
         }
+
+
     }
 }

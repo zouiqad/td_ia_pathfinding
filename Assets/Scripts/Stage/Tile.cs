@@ -26,7 +26,7 @@ public class Tile : MonoBehaviour
     [HideInInspector]
     public TileType _tileType;
 
-    [SerializeField]
+
     private float _cost = 1.0f;
 
     private Renderer _renderer;
