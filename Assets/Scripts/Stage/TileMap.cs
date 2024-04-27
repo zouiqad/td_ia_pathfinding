@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class TileMap : MonoBehaviour
 {
     public Tile[][] grid;
 
     [SerializeField] private GameObject _tilePrefab;
-    [SerializeField] private int sizeX = 13;
+    public int sizeX = 13;
     private Dictionary<Tile, List<Tile>> neighborDictionary;
 
 
@@ -44,7 +45,7 @@ public class TileMap : MonoBehaviour
             sizeY = grid[x].Length;
             for (int y = 0; y < sizeY; y++)
             {
-                int type = 0;
+                int type = Random.Range(0, 4);
 
                 Tile tile = Instantiate(_tilePrefab, new Vector3(y + offSetX, 0, x * strideZ), Quaternion.identity).GetComponent<Tile>();
                 grid[x][y] = tile;
@@ -116,7 +117,7 @@ public class TileMap : MonoBehaviour
                 {
                     t.predecessor = null;
                     t.CostToReach = Mathf.Infinity;
-                    t.ColorTile(Color.white);
+                    t.ColorTile(new Color(1f, 1f, 1f, 0.5f));
                 }
             }
         }

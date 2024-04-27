@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class Tile : MonoBehaviour
 {
+    private PathFindingSettings _settings;
     [HideInInspector]
     public Tile predecessor = null;
     public List<Tile> neighbors;
@@ -27,14 +28,77 @@ public class Tile : MonoBehaviour
     public TileType _tileType;
 
 
-    private float _cost = 1.0f;
+
 
     private Renderer _renderer;
+    private MaterialPropertyBlock propBlock;
+
     private int _x;
     private int _y;
 
+    private float _cost = 1.0f;
+    public float Cost
+    {
+        get => _cost;
+        set => _cost = value;
+    }
+
+    private void SetTileCost()
+    {
+        switch(_tileType)
+        {
+            case TileType.Ground:
+                Cost = _settings.GroundCost;
+                break;
+            case TileType.Tree:
+                Cost = _settings.TreeCost;
+                break;
+            case TileType.Hill:
+                Cost = _settings.HillCost;
+                break;
+            case TileType.Void:
+                Cost = Mathf.Infinity;
+                break;
+            default:
+                break;
+        }
+    }
+
     private float _costToReach = Mathf.Infinity;
-    private Color _Color { get => _renderer.material.color; set => _renderer.material.color = value; }
+    public float CostToReach
+    {
+        get
+        {
+            return _costToReach == Mathf.Infinity ? Mathf.Infinity : _costToReach;
+        }
+
+        set
+        {
+            _costToReach = value;
+        }
+    }
+
+    private Color _Color { 
+        
+        set
+        {
+            if (_renderer == null) return;
+            _renderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor("_Color", value);
+            _renderer.SetPropertyBlock(propBlock);
+        } 
+    }
+
+    private void Awake()
+    {
+        propBlock = new MaterialPropertyBlock();
+        LoadSettings();
+    }
+
+    private void Update()
+    {
+        SetTileCost();
+    }
 
     public void Init(int x, int y, int type = (int)TileType.Ground)
     {
@@ -63,26 +127,20 @@ public class Tile : MonoBehaviour
                     _GroundGO.SetActive(true);
                     _TreeGO.SetActive(false);
                     _HillGO.SetActive(false);
-
-                    Cost = 1.0f;
                     break;
                 case TileType.Tree:
-                    _renderer = _TreeGO.GetComponent<Renderer>();
+                    _renderer = _GroundGO.GetComponent<Renderer>();
 
                     _GroundGO.SetActive(true);
                     _TreeGO.SetActive(true);
                     _HillGO.SetActive(false);
-
-                    Cost = 3.0f;
                     break;
                 case TileType.Hill:
-                    _renderer = _HillGO.GetComponent<Renderer>();
+                    _renderer = _GroundGO.GetComponent<Renderer>();
 
                     _GroundGO.SetActive(true);
                     _TreeGO.SetActive(false);
                     _HillGO.SetActive(true);
-
-                    Cost = 5.0f;
                     break;
 
                 case TileType.Void:
@@ -91,12 +149,12 @@ public class Tile : MonoBehaviour
                     _GroundGO.SetActive(false);
                     _TreeGO.SetActive(false);
                     _HillGO.SetActive(false);
-
-                    Cost = Mathf.Infinity;
                     break;
                 default:
                     break;
             }
+
+            SetTileCost();
         }
             
     }
@@ -104,32 +162,26 @@ public class Tile : MonoBehaviour
 
     public void ColorTile(Color color)
     {
-
+        _Color = color;
     }
 
-
-    public float Cost
-    {
-        get => _cost;
-        set => _cost = value;
-    }
-
-    public float CostToReach
-    {
-        get
-        {
-            return _costToReach == Mathf.Infinity ? Mathf.Infinity : _costToReach;
-        }
-
-        set
-        {
-            _costToReach = value;
-        }
-    }
 
 
     public int _X => _x;
     public int _Y => _y;
+
+    private void LoadSettings()
+    {
+        _settings = Resources.Load<PathFindingSettings>("PathFindingSettings");
+        if (_settings != null)
+        {
+            Debug.Log("Settings loaded successfully.");
+        }
+        else
+        {
+            Debug.LogError("Failed to load settings.");
+        }
+    }
 
 }
 

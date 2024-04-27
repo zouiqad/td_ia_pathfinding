@@ -5,21 +5,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Animator animator;
+    private Animator animator;
 
     public delegate void CurrentTileUpdate(Tile tile);
     public event CurrentTileUpdate onCurrentTileUpdate;
 
-    [SerializeField]
-    private float movementSpeed = 5f; // Speed of the player
+    [SerializeField] private float movementSpeed = 5f; // Speed of the player
     private float lockedYPosition;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     private void SetPosition(Vector3 newPosition)
     {
         lockedYPosition = transform.position.y;
         transform.position = new Vector3(newPosition.x, lockedYPosition, newPosition.z);
-
-
     }
 
 
@@ -33,6 +35,13 @@ public class PlayerController : MonoBehaviour
     private IEnumerator MoveAlongPath(Stack<Tile> path)
     {
         float playerHeight = transform.position.y;
+
+        if (animator != null)
+        {
+            Debug.Log("starting run animation...");
+            animator.SetBool("IsRunning", true); // Trigger run animation
+        }
+
         while (path.Count > 0)
         {
             Tile currentTile = path.Pop();
@@ -44,11 +53,7 @@ public class PlayerController : MonoBehaviour
             float journeyTime = journeyLength / movementSpeed;
             float lerpVal = 0;
 
-            if (animator != null)
-            {
-                animator.SetBool("IsRunning", true); // Trigger run animation
-            }
-
+            transform.LookAt(currentTile.transform.position);
             while (lerpVal < 1)
             {
                 lerpVal += Time.deltaTime / journeyTime;
@@ -57,12 +62,13 @@ public class PlayerController : MonoBehaviour
                 yield return null;
             }
 
-            if (animator != null)
-            {
-                animator.SetBool("IsRunning", false); // Trigger idle animation
-            }
         }
 
+        if (animator != null)
+        {
+            Debug.Log("ending run animation...");
+            animator.SetBool("IsRunning", false); // Trigger run animation
+        }
 
     }
 }
